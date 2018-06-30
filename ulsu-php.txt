@@ -1,0 +1,65 @@
+<?php
+
+/**
+* Features of Simple HTML DOM Parser: 
+*   Supports invalid HTML
+*   Find tags on an HTML page with selectors just like jQuery
+*   Extract contents from HTML in a single line
+* 
+* Simple HTML DOM Parser at http://simplehtmldom.sourceforge.net
+*		
+* @package		PhpFiddle
+* @link			http://phpfiddle.org
+* @since		2012
+*
+*/
+
+// includes Simple HTML DOM Parser
+require "simple_html_dom.php";
+
+//base url
+$base = 'https://ulsu.ie/studentcentre';
+
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+curl_setopt($curl, CURLOPT_HEADER, false);
+curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($curl, CURLOPT_URL, $base);
+curl_setopt($curl, CURLOPT_REFERER, $base);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+$str = curl_exec($curl);
+curl_close($curl);
+
+// Create a DOM object
+$html_base = new simple_html_dom();
+$html_base->load($str);
+
+$data = new stdClass();
+$data -> updated = false;
+
+foreach($html_base->find('div[class="col-md-3 col-sm-4"]') as $element) {
+    $res1 = $element -> find('table', 0);
+    $res2 = $element -> find('table', 1);
+    if($res1 && $res2) {
+        $data -> updated = true;
+        $days = array();
+        
+        echo $res1 -> find('tr', 0) -> plaintext;
+        echo $res1 -> find('tr', 1) -> plaintext;
+        echo $res1 -> find('tr', 2) -> plaintext;
+
+        $data -> duringterms = $res1 -> plaintext;
+        $data -> outsideterms = $res2 -> plaintext;
+    }
+}
+if(!$data -> updated) {
+    $data -> text = '09:30 - 17:00'; // Last time checked: 20/07/2017
+}
+
+$json = json_encode($data);
+echo $json;
+
+$html_base->clear(); 
+unset($html_base);
+
+?>

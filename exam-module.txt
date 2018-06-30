@@ -1,0 +1,41 @@
+<?php
+
+/**
+* Features of Simple HTML DOM Parser: 
+*   Supports invalid HTML
+*   Find tags on an HTML page with selectors just like jQuery
+*   Extract contents from HTML in a single line
+* 
+* Simple HTML DOM Parser at http://simplehtmldom.sourceforge.net
+*		
+* @package		PhpFiddle
+* @link			http://phpfiddle.org
+* @since		2012
+*
+*/
+
+// includes Simple HTML DOM Parser
+require "simple_html_dom.php";
+
+$data = new stdClass();
+$url = "http://www.timetable.ul.ie/mod_exam_res.asp?T1=";
+$link = $url.$_GET["id"];
+// Create DOM from URL or file
+$html = file_get_html(link);
+
+$res = $html->find('table', 1);
+if($res) {
+    $data -> module = trim($res->find('td', 1)->plaintext);
+    $data -> title =  trim($res->find('td', 3)->plaintext);
+    $data -> date =  trim($res->find('td', 5)->plaintext);
+    $data -> day =  trim($res->find('td', 7)->plaintext);
+    $data -> building =  trim($res->find('td', 9)->plaintext);
+    $data -> location =  trim($res->find('td', 11)->plaintext);
+    $data -> time =  trim($res->find('td',13)->plaintext);
+    $data -> otherinformation =  trim($res->find('td',15)->plaintext);
+
+}
+
+$json = json_encode($data);
+echo $json;
+?>
